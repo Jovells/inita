@@ -94,7 +94,7 @@ Storage=persistent
 EOF
 
 echo -e '\n\e[42mDownloading a snapshot\e[0m\n' && sleep 1
-#curl curl -L https://snapshots.kzvn.xyz/initia/initiation-1_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $DAEMON_HOME
+#Changed the snapshot and addrbook urls
 curl -o - -L https://snap.nodex.one/initia-testnet/initia-latest.tar.lz4 | lz4 -c -d - | tar -x -C $DAEMON_HOME
 wget -O $DAEMON_HOME/config/addrbook.json https://storage.crouton.digital/testnet/initia/files/addrbook.json
 
