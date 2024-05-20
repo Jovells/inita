@@ -13,6 +13,8 @@ if [ -f "$bash_profile" ]; then
     . $HOME/.bash_profile
 fi
 sleep 1 && curl -s https://api.nodes.guru/logo.sh | bash && sleep 1
+sleep 1 && echo -e ' M O D I F I E D  B Y  J O V E L L S '
+&& sleep 1
 
 NODE="initia"
 export DAEMON_HOME=$HOME/.initia
