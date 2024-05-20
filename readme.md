@@ -13,6 +13,12 @@ This should get your snapshot downloaded and synced faster. After completing the
 To check your node sync status, run:
 local_height=$(initiad status | jq -r .sync_info.latest_block_height); network_height=$(curl -s https://rpc-initia-testnet.trusted-point.com/status | jq -r .result.sync_info.latest_block_height); blocks_left=$((network_height - local_height)); echo "Your node height: $local_height"; echo "Network height: $network_height"; echo "Blocks left: $blocks_left"
 
+## Upgrade the node
+Run:
+```sh
+cd $HOME/initia && git fetch --all && git checkout v0.2.15 && git pull origin v0.2.15 && make build && sudo mv $HOME/initia/build/initiad $(which initiad) && sudo systemctl restart initiad && sudo journalctl -u initiad -f
+```
+
 ## How to Transfer a Node
 
 ### 1. Stop the Current Node
@@ -50,6 +56,8 @@ To restore the validator state on the new node:
 2. Delete the current file content.
 3. Paste the old validator state that you copied in step 2 using `Ctrl + U`.
 4. Exit with `Ctrl + X`
+
+
 
 ---
 
