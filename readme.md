@@ -11,7 +11,8 @@ wget -q -O initia.sh https://raw.githubusercontent.com/Jovells/inita/main/initia
 This should get your snapshot downloaded and synced faster. After completing the installation, continue with the steps in the [Nodes Guru setup guide](https://nodes.guru/testnets/initia/setup-guide/en).
 
 To check your node sync status, run:
-local_height=$(initiad status | jq -r .sync_info.latest_block_height); network_height=$(curl -s https://rpc-initia-testnet.trusted-point.com/status | jq -r .result.sync_info.latest_block_height); blocks_left=$((network_height - local_height)); echo "Your node height: $local_height"; echo "Network height: $network_height"; echo "Blocks left: $blocks_left"
+```sh local_height=$(initiad status | jq -r .sync_info.latest_block_height); network_height=$(curl -s https://rpc-initia-testnet.trusted-point.com/status | jq -r .result.sync_info.latest_block_height); blocks_left=$((network_height - local_height)); echo "Your node height: $local_height"; echo "Network height: $network_height"; echo "Blocks left: $blocks_left"
+```
 
 ## Upgrade the node
 Run:
