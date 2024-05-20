@@ -64,3 +64,35 @@ To restore the validator state on the new node:
 ---
 
 By following these steps, you can successfully set up and transfer your Initia Node.
+
+### HOW TO GET YOUR RPC ADDRESS ON YOUR VALIDATOR NODE
+credit: [Trudted Point](Website: https://trusted-point.com/)
+
+<a:blue_check:1024964599524634684> Proper format: IP:RPC_PORT
+
+1. **Fetch your IP and RPC port:**
+```bash
+RPC="$(wget -qO- eth0.me)$(grep -A 3 "\[rpc\]" ~/.initia/config/config.toml | egrep -o ":[0-9]+")" && echo $RPC
+```
+2. **Check if it's responding**
+```bash
+curl $RPC/status
+```
+❗ If you are getting `Connection refused` , you need to make it accessible to the Internet:
+1. **Edit config:**
+```bash
+sed -i 's/^laddr = "tcp:\/\/127\.0\.0\.1:/laddr = "tcp:\/\/0.0.0.0:/' $HOME/.initia/config/config.toml
+```
+2. **Restart your node**
+```bash
+sudo systemctl restart initiad
+```
+3. **Ensure logs are good**
+```bash
+sudo journalctl -u initiad -f -o cat --no-hostname
+```
+4. **Check if RPC is responding once again**
+```bash
+curl $RPC/status
+```
+
