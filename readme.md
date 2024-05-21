@@ -11,14 +11,9 @@ wget -q -O initia.sh https://raw.githubusercontent.com/Jovells/inita/main/initia
 This should get your snapshot downloaded and synced faster. After completing the installation, continue with the steps in the [Nodes Guru setup guide](https://nodes.guru/testnets/initia/setup-guide/en).
 
 To check your node sync status, run:
+
 ```sh
 local_height=$(initiad status | jq -r .sync_info.latest_block_height); network_height=$(curl -s https://rpc-initia-testnet.trusted-point.com/status | jq -r .result.sync_info.latest_block_height); blocks_left=$((network_height - local_height)); echo "Your node height: $local_height"; echo "Network height: $network_height"; echo "Blocks left: $blocks_left"
-```
-
-## Upgrade the node
-Run:
-```sh
-cd $HOME/initia && git fetch --all && git checkout v0.2.15 && git pull origin v0.2.15 && make build && sudo mv $HOME/initia/build/initiad $(which initiad) && sudo systemctl restart initiad && sudo journalctl -u initiad -f
 ```
 
 ## How to Transfer a Node
@@ -51,48 +46,131 @@ To restore the validator state on the new node:
 
 1. Open the `priv_validator_state.json` file:
 
-   ```sh
-   nano $HOME/.initia/data/priv_validator_state.json
-   ```
+    ```sh
+    nano $HOME/.initia/data/priv_validator_state.json
+    ```
 
 2. Delete the current file content.
 3. Paste the old validator state that you copied in step 2 using `Ctrl + U`.
-4. Exit with `Ctrl + X`
-
-
+4. Exit with `Ctrl + X`.
 
 ---
 
-By following these steps, you can successfully set up and transfer your Initia Node.
+# Extra Guides
 
-### HOW TO GET YOUR RPC ADDRESS ON YOUR VALIDATOR NODE
-credit: [Trudted Point](Website: https://trusted-point.com/)
+## How to Get a Public RPC Endpoint on Your Validator Node
 
-<a:blue_check:1024964599524634684> Proper format: IP:RPC_PORT
+Proper format: `http://ip_address:rpc_port`  
+Credit: [Trusted Point](https://trusted-point.com/)
 
-1. **Fetch your IP and RPC port:**
+1. **Fetch your IP and RPC port** (It will print your RPC URL):
+
+    ```bash
+    RPC="http://$(wget -qO- eth0.me)$(grep -A 3 "\[rpc\]" $HOME/.initia/config/config.toml | egrep -o ":[0-9]+")" && echo $RPC
+    ```
+
+2. **Check if it's responding**:
+
+    ```bash
+    curl $RPC/status
+    ```
+
+❗ If you are getting `Connection refused`, you need to make it accessible to the Internet:
+
+3. **Edit config**:
+
+    ```bash
+    sed -i '/\[rpc\]/,/\[/{s/^laddr = "tcp:\/\/127\.0\.0\.1:/laddr = "tcp:\/\/0.0.0.0:/}' $HOME/.initia/config/config.toml
+    ```
+
+4. **Restart your node**:
+
+    ```bash
+    sudo systemctl restart initiad
+    ```
+
+5. **Ensure logs are good**:
+
+    ```bash
+    sudo journalctl -u initiad -f -o cat --no-hostname
+    ```
+
+6. **Check if RPC is responding once again**:
+
+    ```bash
+    curl $RPC/status
+    ```
+
+7. **Submit the form**:
+
+    > [https://forms.gle/HqLFePaka2NLmzY98](https://forms.gle/HqLFePaka2NLmzY98)
+
+---
+
+## Updating Peers to Speed Up Node
+
+### Non-Contabo Peers (225)
+
 ```bash
-RPC="$(wget -qO- eth0.me)$(grep -A 3 "\[rpc\]" ~/.initia/config/config.toml | egrep -o ":[0-9]+")" && echo $RPC
+PEERS=$(curl -s --max-time 3 --retry 2 --retry-connrefused "https://rpc-initia-testnet.trusted-point.com/non_contabo_peers.txt")
 ```
-2. **Check if it's responding**
+
+### Hetzner Peers (45)
+
 ```bash
-curl $RPC/status
+PEERS=$(curl -s --max-time 3 --retry 2 --retry-connrefused "https://rpc-initia-testnet.trusted-point.com/hetzner_peers.txt")
 ```
-❗ If you are getting `Connection refused` , you need to make it accessible to the Internet:
-1. **Edit config:**
+
+Choose any command above and fetch peers:
+
 ```bash
-sed -i 's/^laddr = "tcp:\/\/127\.0\.0\.1:/laddr = "tcp:\/\/0.0.0.0:/' $HOME/.initia/config/config.toml
+if [ -z "$PEERS" ]; then
+    echo "No peers were retrieved from the URL."
+else
+    echo -e "\nPEERS: "$PEERS""
+    sed -i "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" "$HOME/.initia/config/config.toml"
+    echo -e "\nConfiguration file updated successfully.\n"
+fi
 ```
-2. **Restart your node**
+
+Stop the node:
+
+```bash
+sudo systemctl stop initiad
+```
+
+Delete `addrbook.json`:
+
+```bash
+sudo rm $HOME/.initia/config/addrbook.json
+```
+
+Start the node:
+
 ```bash
 sudo systemctl restart initiad
 ```
-3. **Ensure logs are good**
+
+Check logs:
+
 ```bash
 sudo journalctl -u initiad -f -o cat --no-hostname
 ```
-4. **Check if RPC is responding once again**
+
+Check sync:
+
 ```bash
-curl $RPC/status
+initiad status | jq -r .sync_info
 ```
 
+---
+
+## Upgrading the Node
+
+Assuming upgrade to v0.2.15:
+
+Run:
+
+```sh
+cd $HOME/initia && git fetch --all && git checkout v0.2.15 && git pull origin v0.2.15 && make build && sudo mv $HOME/initia/build/initiad $(which initiad) && sudo systemctl restart initiad && sudo journalctl -u initiad -f
+```
