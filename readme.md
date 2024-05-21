@@ -26,12 +26,12 @@ Disable the current node by running the following command:
 sudo systemctl disable initiad
 ```
 
-### 2. Copy the Validator State
+### 2. Copy the Validator Keys
 
-To copy the validator state, run:
+To copy the validator keys, run:
 
 ```sh
-cat $HOME/.initia/data/priv_validator_state.json
+cat $HOME/.initia/config/priv_validator_key.json
 ```
 
 Copy the output and keep it safe. You'll need it later.
@@ -44,10 +44,10 @@ Follow the installation instructions provided above. Make sure to restore your o
 
 To restore the validator state on the new node:
 
-1. Open the `priv_validator_state.json` file:
+1. Open the `priv_validator_key.json` file:
 
     ```sh
-    nano $HOME/.initia/data/priv_validator_state.json
+    nano $HOME/.initia/config/priv_validator_key.json
     ```
 
 2. Delete the current file content.
